@@ -7,18 +7,20 @@ import { handleError } from "../utils";
 
 // Define CreateUserParams interface
 interface CreateUserParams {
-  name: string;
+  clerkId: string,
   email: string;
-  password: string;
-  // Add other fields as necessary
+  username: string,
+  firstName: string | null,
+  lastName: string | null,
+  photo: string
 }
 
 // Define UpdateUserParams interface
 interface UpdateUserParams {
-  name?: string;
-  email?: string;
-  password?: string;
-  // Add other fields as necessary
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  photo: string
 }
 
 // CREATE
