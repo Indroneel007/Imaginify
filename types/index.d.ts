@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import qs from "qs";
+=======
+import qs from 'qs';
+>>>>>>> 4d256d68828f27c7da4573e2789fbb499e540e95
 declare type CreateUserParams = {
     clerkId: string;
     email: string;
