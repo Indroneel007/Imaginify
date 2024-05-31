@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
-
-// ====== USER PARAMS
+import qs from 'qs';
 declare type CreateUserParams = {
     clerkId: string;
     email: string;
