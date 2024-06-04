@@ -5,22 +5,26 @@ import qs from "qs";
 import { twMerge } from "tailwind-merge";
 
 import { aspectRatioOptions } from "@/constants";
+import { FormUrlQueryParams, RemoveUrlQueryParams } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 // ERROR HANDLER
-export const handleError = (error: unknown, rethrow: boolean = true) => {
+export const handleError = (error: unknown) => {
   if (error instanceof Error) {
+    // This is a native JavaScript error (e.g., TypeError, RangeError)
     console.error(error.message);
-    if (rethrow) throw new Error(`Error: ${error.message}`);
+    throw new Error(`Error: ${error.message}`);
   } else if (typeof error === "string") {
+    // This is a string error message
     console.error(error);
-    if (rethrow) throw new Error(`Error: ${error}`);
+    throw new Error(`Error: ${error}`);
   } else {
+    // This is an unknown type of error
     console.error(error);
-    if (rethrow) throw new Error(`Unknown error: ${JSON.stringify(error)}`);
+    throw new Error(`Unknown error: ${JSON.stringify(error)}`);
   }
 };
 
@@ -39,7 +43,7 @@ const shimmer = (w: number, h: number) => `
   <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
 </svg>`;
 
-const toBase64 = (str: string): string =>
+const toBase64 = (str: string) =>
   typeof window === "undefined"
     ? Buffer.from(str).toString("base64")
     : window.btoa(str);
@@ -47,19 +51,14 @@ const toBase64 = (str: string): string =>
 export const dataUrl = `data:image/svg+xml;base64,${toBase64(
   shimmer(1000, 1000)
 )}`;
+// ==== End
 
 // FORM URL QUERY
-interface FormUrlQueryParams {
-  searchParams: URLSearchParams;
-  key: string;
-  value: any;
-}
-
 export const formUrlQuery = ({
   searchParams,
   key,
   value,
-}: FormUrlQueryParams): string => {
+}: FormUrlQueryParams) => {
   const params = { ...qs.parse(searchParams.toString()), [key]: value };
 
   return `${window.location.pathname}?${qs.stringify(params, {
@@ -68,15 +67,10 @@ export const formUrlQuery = ({
 };
 
 // REMOVE KEY FROM QUERY
-interface RemoveUrlQueryParams {
-  searchParams: string;
-  keysToRemove: string[];
-}
-
 export function removeKeysFromQuery({
   searchParams,
   keysToRemove,
-}: RemoveUrlQueryParams): string {
+}: RemoveUrlQueryParams) {
   const currentUrl = qs.parse(searchParams);
 
   keysToRemove.forEach((key) => {
@@ -100,7 +94,7 @@ export const debounce = (func: (...args: any[]) => void, delay: number) => {
   };
 };
 
-// GET IMAGE SIZE
+// GE IMAGE SIZE
 export type AspectRatioKey = keyof typeof aspectRatioOptions;
 export const getImageSize = (
   type: string,
@@ -119,8 +113,7 @@ export const getImageSize = (
 // DOWNLOAD IMAGE
 export const download = (url: string, filename: string) => {
   if (!url) {
-    handleError("Resource URL not provided! You need to provide one", false);
-    return;
+    throw new Error("Resource URL not provided! You need to provide one");
   }
 
   fetch(url)
@@ -131,24 +124,23 @@ export const download = (url: string, filename: string) => {
       a.href = blobURL;
 
       if (filename && filename.length)
-        a.download = `${filename.replace(/ /g, "_")}.png`;
+        a.download = `${filename.replace(" ", "_")}.png`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
     })
-    .catch((error) => handleError(error, false));
+    .catch((error) => console.log({ error }));
 };
 
 // DEEP MERGE OBJECTS
-export const deepMergeObjects = (obj1: any, obj2: any): any => {
-  if (obj2 === null || obj2 === undefined) {
+export const deepMergeObjects = (obj1: any, obj2: any) => {
+  if(obj2 === null || obj2 === undefined) {
     return obj1;
   }
 
-  let output = { ...obj1 };
+  let output = { ...obj2 };
 
-  for (let key in obj2) {
-    if (Object.prototype.hasOwnProperty.call(obj2, key)) {
+  for (let key in obj1) {
+    if (obj1.hasOwnProperty(key)) {
       if (
         obj1[key] &&
         typeof obj1[key] === "object" &&
@@ -157,7 +149,7 @@ export const deepMergeObjects = (obj1: any, obj2: any): any => {
       ) {
         output[key] = deepMergeObjects(obj1[key], obj2[key]);
       } else {
-        output[key] = obj2[key];
+        output[key] = obj1[key];
       }
     }
   }
